@@ -1,0 +1,218 @@
+Welcome to making apps with Pymunk
+==================================
+
+This tutorial shows how to make applications with the 2D physics
+framework Pymunk in an object-oriented programming style.
+
+A bouncing ball
+---------------
+
+We start this tutorial with simple bouncing ball simulation. 
+The first thing we need to do is to import the ``pymunk`` and the ``pygame`` module::
+
+    import pymunk
+    import pymunk.pygame_util
+    import pygame
+
+Then we initialize the Pygame module and define the ``screen`` surface where
+we are going to draw the simulation result. Pymunk comes with a simple
+draw option which can be used for quick prototyping::
+
+    pygame.init()
+    screen = pygame.display.set_mode((640, 240))
+    draw_options = pymunk.pygame_util.DrawOptions(screen)
+
+The 2D physics simulation takes place in a ``Space`` object. 
+We define ``space`` as a global variable and assign it a gravity vector::
+
+    space = pymunk.Space()
+    space.gravity = 0, -900
+
+To create a static ground for our object we create a ``Segment`` object.
+In order to have the ball bouncing from it, we give it an elasticity of 0.95::
+
+    segment = pymunk.Segment(space.static_body, (20, 20), (400, 20), 1)
+    segment.elasticity = 0.95
+
+The we create the dynamic body, and give it a mass, moment and position::
+
+    body = pymunk.Body(mass=1, moment=10)
+    body.position = (100, 200)
+
+In Pymunk we have to attach a shape to a body. We create a ``Circle`` shape and 
+attach it to the body::
+
+    circle = pymunk.Circle(body, radius=20)
+    circle.elasticity = 0.95
+
+Finally we add the ``body``, ``circle`` and ``segment`` to the ``space``.
+Now we are ready for simulation::
+
+    space.add(body, circle, segment)
+
+In the last part we start the Pygame event loop. The only event we are going to detect
+is the QUIT event::
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+In the latter part of the event loop we draw the obejcts. 
+First we fill the screen with a gry background color.
+Then we draw the two objects (circle, segment), 
+call the display update function, 
+and finally step the simulation forward by 0.01 time units::
+
+        screen.fill((255, 255, 255))
+        space.debug_draw(draw_options)
+        pygame.display.update()
+        space.step(0.01)
+
+    pygame.quit()
+
+.. image:: intro1.png
+
+:download:`intro1.py<intro1.py>`
+
+Creating an App class
+---------------------
+
+In order to simplfy the tutorial examples we will create an ``App`` class
+which will run the simulation. This class takes care of 
+
+* initialize Pygame
+* create a screen
+* set the draw option
+
+Here is the class definition with the constructor method::
+
+    class App:
+        def __init__(self):
+            pygame.init()
+            self.screen = pygame.display.set_mode((700, 240))
+            self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
+            self.running = True
+
+The ``App`` class has a ``run()`` method which runs the Pygame event loop::
+
+    def run(self):
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    pygame.image.save(self.screen, 'intro.png')
+
+            self.screen.fill((220, 220, 220))
+            space.debug_draw(self.draw_options)
+            pygame.display.update()
+            space.step(0.01)
+
+        pygame.quit()
+
+:download:`intro.py<intro.py>`
+
+
+A ball rolling down slope
+---------------------------------
+
+We can now import ``pymunk``, ``space`` and the ``App`` class::
+
+    from intro import pymunk, space, App
+
+Let's define an inclined segment and give it friction::
+
+    segment = pymunk.Segment(space.static_body, (20, 120), (400, 20), 1)
+    segment.elasticity = 0.5
+    segment.friction = 0.5
+
+The circle shape also needs friction, in order to roll. 
+Whithout friction it would just glide down the slope::
+
+    circle = pymunk.Circle(body, radius=20)
+    circle.elasticty = 0.5
+    circle.friction = 0.5
+    space.add(body, circle, segment)
+
+Finally we instantiate the app and call the ``run()`` method::
+
+    App().run()
+
+.. image:: intro2.png
+
+:download:`intro2.py<intro2.py>`
+
+A block sliding down a slope
+----------------------------
+
+The ``Poly`` class has a method to create box shapes. 
+Without elasticity it slides down the slope::
+
+    box = pymunk.Poly.create_box(body, (50, 50))
+    space.add(body, box, segment)
+
+.. image:: intro3.png
+
+:download:`intro3.py<intro3.py>`
+
+A block tumbling down a slope
+-----------------------------
+
+Now we add elasticity to the box shape. 
+It tumbles down the slope::
+
+    box = pymunk.Poly.create_box(body, (50, 50))
+    box.elasticity = 0.95
+    space.add(body, box, segment)
+
+.. image:: intro4.png
+
+:download:`intro4.py<intro4.py>`
+
+A ball inside a box
+-------------------
+
+In order to draw a closed box where objects can bounce, 
+we must get the 4 corner points. From those we can create 4 segments. 
+We give them an elasticity of 0.999 as a value of 1 or larger can lead 
+to an instable system::
+
+    pts = [(10, 10), (690, 10), (690, 230), (10, 230)]
+    for i in range(4):
+        seg = pymunk.Segment(space.static_body, pts[i], pts[(i+1)%4], 2)
+        seg.elasticity = 0.999
+        space.add(seg)
+
+In order to give the ball an inital lateral movement we apply an 
+impulse vector of (100, 0) to it at initialization::
+
+    body = pymunk.Body(mass=1, moment=10)
+    body.position = (100, 200)
+    body.apply_impulse_at_local_point((100, 0))
+
+.. image:: intro5.png
+
+:download:`intro5.py<intro5.py>`
+
+Many particles in a box
+-----------------------
+
+In order to simulate many particles in a box, we first turn off gravity. 
+The we create a large number of particles at random location and give them
+random impulses as a starting movement::
+
+    space.gravity = 0, 0
+    for i in range(40):
+        body = pymunk.Body(mass=1, moment=10)
+        body.position = randint(40, 660), randint(40, 200)
+        impulse = randint(-100, 100), randint(-100, 100)       
+        body.apply_impulse_at_local_point(impulse)
+        circle = pymunk.Circle(body, radius=10)
+        circle.elasticity = 0.999
+        circle.friction = 0.5
+        space.add(body, circle)
+
+.. image:: intro6.png
+
+:download:`intro6.py<intro6.py>`

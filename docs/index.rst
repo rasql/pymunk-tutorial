@@ -10,7 +10,7 @@ Welcome to Pymunk tutorial's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   intro/intro
 
 Indices and tables
 ==================
