@@ -39,7 +39,7 @@ sphinx-quickstart
 html_theme = 'sphinx_rtd_theme'
 ```
 
-* in ``ìndex.rst`` add
+* in ``index.rst`` add
 
 ```bash
 intro/intro.rst
@@ -52,3 +52,8 @@ Connect to Read the Docs
 
 * connect with GitHub account
 * import the project
+* add this to conf.py
+
+```
+master_doc = 'index'
+```
