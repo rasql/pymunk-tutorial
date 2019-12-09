@@ -21,6 +21,9 @@ project = 'Pymunk tutorial'
 copyright = '2019, Raphael Holzer'
 author = 'Raphael Holzer'
 
+# added manually (rh 9.12.2019)
+master_doc = 'index'
+
 # The full version, including alpha/beta/rc tags
 release = '2019'
 
