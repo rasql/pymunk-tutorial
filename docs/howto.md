@@ -46,3 +46,9 @@ intro/intro.rst
 ```
 
 * run ``make html``
+
+Connect to Read the Docs
+------------------------
+
+* connect with GitHub account
+* import the project
