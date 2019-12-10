@@ -11,6 +11,7 @@ Welcome to Pymunk tutorial's documentation!
    :caption: Contents:
 
    intro/intro
+   shape/shape
    bird/bird
 
 Indices and tables

@@ -1,5 +1,5 @@
-Welcome to making apps with Pymunk
-==================================
+Introduction
+============
 
 This tutorial shows how to make applications with the 2D physics
 framework Pymunk in an object-oriented programming style.
@@ -216,3 +216,49 @@ random impulses as a starting movement::
 .. image:: intro6.png
 
 :download:`intro6.py<intro6.py>`
+
+Pin joint
+---------
+
+A ``PinJoint`` links two bodies with a solid link or pin. For all static points of attachement
+we use the same ``space.static_body`` which has its default position at (0, 0)::
+
+    b0 = space.static_body
+
+As the dynamic body we place a sphere at (100, 100)::
+
+    body = pymunk.Body(mass=1, moment=10)
+    body.position = (100, 100)
+    circle = pymunk.Circle(body, radius=20)
+
+The ``PinJoint`` methode takes 2 bodies and their local positions as argument. 
+We place the static body ``b0``'s anchor at (200, 200) and leave the dynamic ``body`` at its default anchor 
+of (0, 0). This creates a pin between static point (200, 200) and dynamic point (100, 100)::
+
+    joint = pymunk.constraint.PinJoint(b0, body, (200, 200))
+
+Due to gravity, the pendulum starts swinging.
+
+.. image:: intro7.png
+
+:download:`intro7.py<intro7.py>`
+
+Double pendulum
+---------------
+
+If a moving eleastic pendulum hits another pendulum of the same mass, the energy 
+is entirely transferred to the second object.
+
+.. image:: intro8.png
+
+:download:`intro8.py<intro8.py>`
+
+Newton's cradle
+---------------
+
+Newton's cradle is a device that demonstrates conservation of momentum and energy 
+using a series of swinging spheres. 
+
+.. image:: intro9.png
+
+:download:`intro9.py<intro9.py>`
