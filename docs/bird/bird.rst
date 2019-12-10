@@ -1,5 +1,5 @@
-Tutorial for making Angry Birds
-===============================
+Angry Birds
+===========
 
 This section shows how to make a simple and extensible version of Angry Birds
 using the 2D physics simulaiton package Pymunk and the Multi-media package Pygame.

@@ -6,7 +6,9 @@ space = pymunk.Space()
 space.gravity = 0, -900
 
 def info(body):
-    print(f'm={body.mass:.1} moment={body.moment:.1}')
+    print(f'm={body.mass:.0f} moment={body.moment:.0f}')
+    cg = body.center_of_gravity
+    print(cg.x, cg.y)
 
 class Box:
     def __init__(self, p0=(10, 10), p1=(690, 230), d=2):
@@ -19,6 +21,26 @@ class Box:
             segment.friction = 1
             space.add(segment)
 
+class Polygon:
+    def __init__(self, pos, vertices, density=0.1):
+        self.body = pymunk.Body(1, 100)
+        self.body.position = pos
+
+        shape = pymunk.Poly(self.body, vertices)
+        shape.density = 0.1
+        shape.elasticity = 1
+        space.add(self.body, shape)
+
+class Rectangle:
+    def __init__(self, pos, size=(80, 50)):
+        self.body = pymunk.Body()
+        self.body.position = pos
+
+        shape = pymunk.Poly.create_box(self.body, size)
+        shape.density = 0.1
+        shape.elasticity = 1
+        shape.friction = 1
+        space.add(self.body, shape)
 class App:
     def __init__(self):
         pygame.init()
@@ -52,4 +74,5 @@ if __name__ == '__main__':
     circle.friction = 1
     space.add(body, circle)
 
+    info(body)
     App().run()

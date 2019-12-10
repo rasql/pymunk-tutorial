@@ -56,3 +56,52 @@ The following code represents a segment of length 100 with its center of gravity
 .. image:: shape2.png
 
 :download:`shape2.py<shape2.py>`
+
+
+L-shaped segment
+----------------
+
+.. image:: shape3.png
+
+:download:`shape3.py<shape3.py>`
+
+
+Multiple L-shaped segment
+-------------------------
+
+.. image:: shape4.png
+
+:download:`shape4.py<shape4.py>`
+
+
+Triangles
+---------
+
+.. image:: shape6.png
+
+:download:`shape6.py<shape6.py>`
+
+
+Conveyer belt
+-------------
+
+.. image:: shape7.png
+
+:download:`shape7.py<shape7.py>`
+
+
+Pivot joint
+-----------
+
+.. image:: shape8.png
+
+:download:`shape8.py<shape8.py>`
+
+
+Damped spring
+-------------
+
+.. image:: shape9.png
+
+:download:`shape9.py<shape9.py>`
+
