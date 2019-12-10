@@ -3,8 +3,8 @@ from pygame.locals import *
 
 import pymunk
 import pymunk.pygame_util
+from pymunk.pygame_util import to_pygame, from_pygame
 from pymunk import Vec2d
-
 import math
 
 BLACK = (0, 0, 0)
@@ -22,63 +22,133 @@ beam = pygame.image.load('beam.png').convert_alpha()
 sling = pygame.image.load('sling.png').convert_alpha()
 sling2 = pygame.image.load('sling2.png').convert_alpha()
 
+triangle = pygame.image.load('triangle.png').convert_alpha()
+print(triangle.get_size())
+
 pygame.mixer.music.load('angry-birds.ogg')
 pygame.mixer.music.play(-1)
 
 objects = []
 
 class Obj:
+    def __init__(self, pos, angle=0):
+        self.body = pymunk.Body(1, 10)
+        self.body.position = pos
+        self.body.angle = math.radians(angle)
+        space.add(self.body)
+        
     def draw(self):
-        pos = self.body.position
         angle = self.body.angle
-
         img = pygame.transform.rotate(self.img, math.degrees(angle))
-        w, h = img.get_size()
-        x = pos[0] - w//2
-        y = 600 - pos[1] - h//2
-        screen.blit(img, (x, y))
+        
+        pos = to_pygame(self.body.position, screen)
+        rect = img.get_rect()
+        rect.center = to_pygame(self.body.position, screen)
+        screen.blit(img, rect)
 
-class Circle(Obj):
-    def __init__(self, pos, radius=10, img=None):
-        body = pymunk.Body(1, 1)
-        body.position = pos
-        shape = pymunk.Circle(body, 32)
+class Bird(Obj):
+    def __init__(self, pos):
+        super().__init__(pos)
+        shape = pymunk.Circle(self.body, 32)
         shape.elasticity = 0.5
-        space.add(body, shape)
-        self.body = body
+        shape.friction = 0.5
+        space.add(shape)
         self.img = bird
+        objects.append(self)
 
+class Pig(Obj):
+    def __init__(self, pos):
+        super().__init__(pos)
+        shape = pymunk.Circle(self.body, 32)
+        shape.elasticity = 0.5
+        shape.friction = 0.5
+        space.add(shape)
+        self.img = pygame.transform.scale(pig, (64, 64))
         objects.append(self)
 
 class Rectangle(Obj):
-    def __init__(self, pos, size, angle=0):
+    def __init__(self, pos, angle=0):
+        super().__init__(pos, angle)
         self.img = beam
         size = self.img.get_size()
-
-        body = pymunk.Body()
-        body.position = pos
-        body.angle = angle
-        shape = pymunk.Poly.create_box(body, size)
-        shape.density = 0.01
-        shape.elasticity = 0.5
-        space.add(body, shape)
-        self.body = body
-
+        shape = pymunk.Poly.create_box(self.body, size)
+        # shape.elasticity = 0.5
+        shape.friction = 0.5
+        space.add(shape)
         objects.append(self)
-        
+
+
+class Triangle(Obj):
+    img = pygame.image.load('triangle.png').convert_alpha()
+    size = img.get_size()
+    w, h = size
+    vertices = [(-w//2, -h//2), (w//2, -h//2), (0, h//2)]
+
+    def __init__(self, pos, angle=0):
+        super().__init__(pos, angle)
+        shape = pymunk.Poly(self.body, self.vertices)
+        space.friction = 0.5
+        space.add(shape)
+        objects.append(self)
+
+class Level:
+    def __init__(self):
+        self.set(1)
+
+    def set_ground(self):
+        shape = pymunk.Segment(space.static_body, (0, 10), (1200, 10), 10)
+        # shape.elasticity = 0.5
+        shape.friction = 0.5
+        space.add(shape)
+
+    def remove_objects(self):
+        """Remove all objects from space."""
+        global objects
+        objects = []
+        for body in space.bodies:
+            space.remove(body)
+        for shape in space.shapes:
+            space.remove(shape)
+
+    def set(self, level):
+        """Set player level."""
+        self.level = level
+        self.remove_objects()
+        self.set_ground()
+
+        if level == 1:
+            Triangle((400, 60))
+            Triangle((500, 60))
+            
+            Rectangle((1000, 100), angle=90)
+            Rectangle((1060, 100), angle=90)
+            Rectangle((1030, 145))
+            Rectangle((1000, 200), angle=90)
+            Rectangle((1060, 200), angle=90)
+            Rectangle((1030, 245))
+
+            Pig((1140, 60))
+
+        elif level == 2:
+            Rectangle((1000, 100), angle=90)
+            Rectangle((1000, 200), angle=90)
+            Pig((1100, 60))
+
+        elif level == 3:
+            Triangle((500, 60))
+            Triangle((590, 60))
+            Pig((700, 100))
+
+        elif level == 4:
+            Triangle((500, 60))
+            Triangle((590, 60))
+            Triangle((680, 60))
+            Pig((750, 100))
 
 
 space = pymunk.Space()
 space.gravity = 0, -900
 draw_options = pymunk.pygame_util.DrawOptions(screen)
-
-shape = pymunk.Segment(space.static_body, (0, 20), (1200, 20), 2)
-shape.elasticity = 0.95
-shape.friction = 1
-space.add(shape)
-
-Rectangle ((1000, 100), (40, 120))
-Rectangle ((1000, 200), (40, 120), angle=90)
 
 bird_rect0 = Rect(160, 380, 100, 100)
 bird_rect = bird_rect0.copy()
@@ -88,6 +158,9 @@ sling2_pos = (173, 415)
 running = True
 stepping = True
 shooting = False
+debugging = False
+
+level = Level()
 
 while running:
     for event in pygame.event.get():
@@ -101,8 +174,15 @@ while running:
             if event.key == K_s:
                 stepping = not stepping
 
+            if event.key == K_d:
+                debugging = not debugging
+
+            if K_1 <= event.key <= K_9:
+                i = int(event.unicode)
+                level.set(i)
+
         if event.type == MOUSEBUTTONDOWN:
-            print(event.pos)
+            print(from_pygame(event.pos, screen))
             if bird_rect.collidepoint(event.pos):
                 shooting = True
 
@@ -118,14 +198,13 @@ while running:
                 p1 = pymunk.pygame_util.from_pygame(sling1_pos, screen)
                 v = (Vec2d(p1) - Vec2d(p0)) * 10
                 print(v)
-                b = Circle(pos=p0)
+                b = Bird(pos=p0)
                 b.body.apply_impulse_at_local_point(v)
 
     screen.blit(background, (0, 0))
-    # space.debug_draw(draw_options)
-
+    if debugging:
+        space.debug_draw(draw_options)
     screen.blit(sling, (200, 380))
-
     for object in objects:
         object.draw()
 
@@ -135,11 +214,10 @@ while running:
     pygame.draw.line(screen, BLACK, sling2_pos, p0, 4)
     screen.blit(sling2, (170, 380))
 
-    screen.blit(score, (20, 20))
-    
+    screen.blit(score, (20, 20)) 
     pygame.display.update()
     
     if stepping:
-        space.step(0.01)
+        space.step(0.02)
 
 pygame.quit()
