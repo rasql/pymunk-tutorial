@@ -89,11 +89,6 @@ class Pig(Circle):
         super().__init__(pos, type=1)
 
 
-class Disc(Circle):
-    img = pygame.image.load('disc.png').convert_alpha()
-    img = pygame.transform.scale(img, (64, 64))
-
-
 class Rectangle(Object):
     def __init__(self, pos):
         super().__init__(pos)
@@ -106,12 +101,10 @@ class Rectangle(Object):
 
 class Beam(Rectangle):
     img = pygame.image.load('beam.png').convert_alpha()
-    print(__name__, img.get_size())
 
 
 class Column(Rectangle):
     img = pygame.image.load('column.png').convert_alpha()
-    print(__name__, img.get_size())
 
 
 class Game:
@@ -204,11 +197,3 @@ class Game:
                 Pig((x+40, 50))
 
             Pig((850, 100))
-
-        else:
-            print('level not implemented')
-
-
-if __name__ == '__main__':
-    game = Game()
-    print(game.objects)
