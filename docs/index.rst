@@ -12,6 +12,7 @@ Welcome to Pymunk tutorial's documentation!
 
    intro/intro
    shape/shape
+   joint/joint
    bird/bird
 
 Indices and tables
