@@ -16,17 +16,9 @@ the sprites used in this tutorial. Download them to your current folder.
 
 :download:`background.png<background.png>`
 
-.. image:: beam.png
-
-:download:`beam.png<beam.png>`
-
 .. image:: bird.png
 
 :download:`bird.png<bird.png>`
-
-.. image:: pig.png
-
-:download:`pig.png<pig.png>`
 
 .. image:: sling.png
 
@@ -35,6 +27,23 @@ the sprites used in this tutorial. Download them to your current folder.
 .. image:: sling2.png
 
 :download:`sling2.png<sling2.png>`
+
+.. image:: pig.png
+
+:download:`pig.png<pig.png>`
+
+.. image:: beam.png
+
+:download:`beam.png<beam.png>`
+
+.. image:: column.png
+
+:download:`column.png<column.png>`
+
+The class definitions are here: 
+
+:download:`classes.py<classes.py>`
+
 
 First program
 -------------
