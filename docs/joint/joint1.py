@@ -1,24 +1,16 @@
-# double pendulum
-from joint import pymunk, space, App, Box, Rectangle
+# pivot point
+from joint import b0, App, PivotJoint, Segment, Vec2d
 
-b0 = space.static_body
-p0 = 100, 200
+p0 = Vec2d(100, 200)
+v = Vec2d(80, 0)
 
-class Disc:
-    def __init__(self, pos, radius=20):
-        self.body = pymunk.Body(mass=1, moment=10)
-        self.body.position = pos
-        shape = pymunk.Circle(self.body, radius)
-        space.add(self.body, shape)
+segment = Segment(p0, v)
+PivotJoint(b0, segment.body, p0)
 
-p0 = 300, 200
-d = Disc((120, 200), 30)
-joint = pymunk.constraint.PinJoint(b0, d.body, p0)
-space.add(joint)
+segment = Segment(p0+4*v, 2*v)
+PivotJoint(b0, segment.body, p0+4*v)
 
-p1 = 300, 200
-d = Disc((200, 200), 30)
-joint = pymunk.constraint.PinJoint(b0, d.body, p0)
-space.add(joint)
+segment2 = Segment(p0+6*v, v)
+PivotJoint(segment.body, segment2.body, 2*v)
 
 App().run()

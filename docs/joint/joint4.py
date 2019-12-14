@@ -1,26 +1,20 @@
 # different rotation speeds
-from joint import pymunk, space, App, Box, Rectangle, Segment, Vec2d
-
-Box()
-
-b0 = space.static_body
+from joint import b0, App, SimpleMotor, PivotJoint , Segment, Vec2d
 
 p0 = 200, 120
-arm = Segment(p0, (80, 10))
-j1 = pymunk.constraint.PivotJoint(b0, arm.body, p0)
-j2 = pymunk.constraint.SimpleMotor(b0, arm.body, 1)
-space.add(j1, j2)
+v = 80, 0
+arm = Segment(p0, v)
+PivotJoint(b0, arm.body, p0)
+SimpleMotor(b0, arm.body, 1)
 
 p0 = 400, 120
-arm = Segment(p0, (80, 10))
-j1 = pymunk.constraint.PivotJoint(b0, arm.body, p0)
-j2 = pymunk.constraint.SimpleMotor(b0, arm.body, 10)
-space.add(j1, j2)
+arm = Segment(p0, v)
+PivotJoint(b0, arm.body, p0)
+SimpleMotor(b0, arm.body, 5)
 
 p0 = 600, 120
-arm = Segment(p0, (80, 10))
-j1 = pymunk.constraint.PivotJoint(b0, arm.body, p0)
-j2 = pymunk.constraint.SimpleMotor(b0, arm.body, 20)
-space.add(j1, j2)
+arm = Segment(p0, v)
+PivotJoint(b0, arm.body, p0)
+SimpleMotor(b0, arm.body, 10)
 
 App().run()

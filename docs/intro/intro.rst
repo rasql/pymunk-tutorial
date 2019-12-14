@@ -4,6 +4,26 @@ Introduction
 This tutorial shows how to make applications with the 2D physics
 framework Pymunk in an object-oriented programming style.
 
+Bodies
+------
+
+The ``Body`` class describes the physical aspects of an objects. These aspects cannot be seen, but describe how it moves.
+
+Six properties which describe the state of a body
+
+* mass - how heavy it is
+* moment - it's resistance to rotation
+* position - it's spacial location
+* angle - the current orientation
+* velocity - how fast and in which direction it is moving
+* angular velocity - how fast in which direction it is rotatting
+
+Two forces which can change it's rate
+
+* force
+* torque
+
+
 A bouncing ball
 ---------------
 
