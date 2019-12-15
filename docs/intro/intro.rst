@@ -1,27 +1,48 @@
 Introduction
 ============
 
-This tutorial shows how to make applications with the 2D physics
+This tutorial shows how to make applications with the **2D physics**
 framework Pymunk in an object-oriented programming style.
 
-Bodies
-------
 
-The ``Body`` class describes the physical aspects of an objects. These aspects cannot be seen, but describe how it moves.
+About the naming of variables
+-----------------------------
 
-Six properties which describe the state of a body
+Before we get started, get familiar with some conventions used in this tutorial.
+In order to make the programs simple and short, we will use short variable names.
 
-* mass - how heavy it is
-* moment - it's resistance to rotation
-* position - it's spacial location
-* angle - the current orientation
-* velocity - how fast and in which direction it is moving
-* angular velocity - how fast in which direction it is rotatting
+- ``b`` stands for **Body**
+- ``c`` stands for **Constraint**
+- ``s`` stands for **Shape**
 
-Two forces which can change it's rate
+An important class is the ``Vec2d`` class of
 
-* force
-* torque
+- ``p`` for **position**
+- ``v`` for **vector**
+
+A final ``s`` serves as a plural marker.
+
+- ``bs`` is a list of **bodies**
+- ``ps`` is a list of **positions**
+- ``vs`` is a list of **vectors**
+
+The static body is used frequently, so we give it the short name ``b0`` ::
+
+    b0 = space.static_body
+
+The abstract Body
+-----------------
+
+The ``Body`` class describes the physical aspects of an objects. 
+These aspects cannot be seen, but describe how it moves.
+Six properties describe the state of a body
+
+* ``mass`` - how heavy it is
+* ``moment`` - it's resistance to rotation
+* ``position`` - it's spatial location
+* ``angle`` - the current orientation
+* ``velocity`` - how fast and in which direction it is moving
+* ``angular_velocity`` - how fast in which direction it is rotatting
 
 
 A bouncing ball
@@ -39,7 +60,8 @@ we are going to draw the simulation result. Pymunk comes with a simple
 draw option which can be used for quick prototyping::
 
     pygame.init()
-    screen = pygame.display.set_mode((640, 240))
+    size = 640, 240
+    screen = pygame.display.set_mode(size)
     draw_options = pymunk.pygame_util.DrawOptions(screen)
 
 The 2D physics simulation takes place in a ``Space`` object. 
@@ -48,16 +70,17 @@ We define ``space`` as a global variable and assign it a gravity vector::
     space = pymunk.Space()
     space.gravity = 0, -900
 
-To create a static ground for our object we create a ``Segment`` object.
-In order to have the ball bouncing from it, we give it an elasticity of 0.95::
+To create a static ground for our object we create a ``Segment`` shape.
+In order to have the ball bouncing from it, we give it an elasticity of 1::
 
-    segment = pymunk.Segment(space.static_body, (20, 20), (400, 20), 1)
-    segment.elasticity = 0.95
+    b0 = space.static_body
+    segment = pymunk.Segment(b0, (0, 0), (640, 0), 4)
+    segment.elasticity = 1
 
 The we create the dynamic body, and give it a mass, moment and position::
 
     body = pymunk.Body(mass=1, moment=10)
-    body.position = (100, 200)
+    body.position = 100, 200
 
 In Pymunk we have to attach a shape to a body. We create a ``Circle`` shape and 
 attach it to the body::
@@ -70,8 +93,8 @@ Now we are ready for simulation::
 
     space.add(body, circle, segment)
 
-In the last part we start the Pygame event loop. The only event we are going to detect
-is the QUIT event::
+In the last part we start the Pygame event loop. 
+The only event we are going to detect is the QUIT event::
 
     running = True
     while running:
@@ -80,12 +103,12 @@ is the QUIT event::
                 running = False
 
 In the latter part of the event loop we draw the obejcts. 
-First we fill the screen with a gry background color.
+First we fill the screen with a gray background color.
 Then we draw the two objects (circle, segment), 
 call the display update function, 
 and finally step the simulation forward by 0.01 time units::
 
-        screen.fill((255, 255, 255))
+        screen.fill(GRAY)
         space.debug_draw(draw_options)
         pygame.display.update()
         space.step(0.01)
@@ -100,11 +123,14 @@ Creating an App class
 ---------------------
 
 In order to simplfy the tutorial examples we will create an ``App`` class
-which will run the simulation. This class takes care of 
+which will run the simulation. This class will
 
 * initialize Pygame
-* create a screen
+* create a ``screen```
+* create a ``space``
 * set the draw option
+* check the events
+* draw the objects to the screen
 
 Here is the class definition with the constructor method::
 

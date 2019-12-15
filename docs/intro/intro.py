@@ -2,13 +2,16 @@ import pymunk
 import pymunk.pygame_util
 import pygame
 
+GRAY = (220, 220, 220)
 space = pymunk.Space()
 space.gravity = 0, -900
+b0 = space.static_body
 
 class App:
+    size = 700, 240
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((700, 240))
+        self.screen = pygame.display.set_mode(self.size)
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
         self.running = True
 
@@ -19,7 +22,7 @@ class App:
                     self.running = False
                     pygame.image.save(self.screen, 'intro.png')
 
-            self.screen.fill((220, 220, 220))
+            self.screen.fill(GRAY)
             space.debug_draw(self.draw_options)
             pygame.display.update()
             space.step(0.01)
@@ -27,13 +30,14 @@ class App:
         pygame.quit()
 
 if __name__ == '__main__':
-    segment = pymunk.Segment(space.static_body, (20, 20), (400, 20), 1)
-    segment.elasticity = 0.95
+    p0, p1 = (0, 0), (700, 0)
+    segment = pymunk.Segment(b0, p0, p1, 4)
+    segment.elasticity = 1
 
     body = pymunk.Body(mass=1, moment=10)
     body.position = (100, 200)
 
-    circle = pymunk.Circle(body, radius=20)
+    circle = pymunk.Circle(body, radius=30)
     circle.elasticity = 0.95
     space.add(body, circle, segment)
 
