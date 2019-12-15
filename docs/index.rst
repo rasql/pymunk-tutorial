@@ -13,7 +13,10 @@ Welcome to this Pymunk tutorial
    intro/intro
    shape/shape
    joint/joint
+   auto/auto
+   app/app
    bird/bird
+
 
 Indices and tables
 ==================

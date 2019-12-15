@@ -31,9 +31,9 @@ draw_options = pymunk.pygame_util.DrawOptions(screen)
 pymunk.pygame_util.positive_y_is_up = False
 
 # Generate geometry from pymunk logo image
-logo_img = pygame.image.load("pymunk_logo_sphinx.png")
-logo_bb = pymunk.BB(0, 0, logo_img.get_width(), logo_img.get_height())
-
+logo_img = pygame.image.load("pymunk_logo.png")
+w, h = logo_img.get_size()
+logo_bb = pymunk.BB(0, 0, w, h)
 
 def sample_func(point):
     try:
@@ -41,30 +41,19 @@ def sample_func(point):
         color = logo_img.get_at(p)
 
         return color.a
-        return color.hsla[2]
     except:
         return 0
 
-
 line_set = pymunk.autogeometry.PolylineSet()
-
 
 def segment_func(v0, v1):
     line_set.collect_segment(v0, v1)
 
-t0 = pygame.time.ticks()
 
-logo_img.lock()
 pymunk.autogeometry.march_soft(
-    logo_bb,
-    logo_img.get_width(), logo_img.get_height(),
-    99,
+    logo_bb, w, h, 99,
     segment_func,
     sample_func)
-logo_img.unlock()
-
-t = pygame.time.ticks()
-print(t-t0)
 
 r = 10
 letter_group = 0
@@ -84,8 +73,8 @@ for line in line_set:
 
     # we skip the line which has less than 35 height, since its the "hole" in
     # the p in pymunk, and we dont need it.
-    if h < 35:
-        continue
+    # if h < 35:
+    #     continue
 
     center = Vec2d(min_x + w/2., min_y + h/2.)
     t = pymunk.Transform(a=1.0, d=1.0, tx=-center.x, ty=-center.y)
@@ -98,7 +87,7 @@ for line in line_set:
         for i in range(len(line)-1):
             shape = pymunk.Segment(space.static_body, line[i], line[i+1], 1)
             shape.friction = 0.5
-            shape.color = (255, 255, 255, 0)
+            shape.color = (255, 0, 0, 0)
             space.add(shape)
 
 
@@ -264,7 +253,7 @@ while running:
 
     screen.fill(Color('white'))
     space.debug_draw(draw_options)
-    screen.blit(logo_img, (0, 0))
+    #screen.blit(logo_img, (0, 0))
     pygame.display.flip()
 
     dt = clock.tick(fps)

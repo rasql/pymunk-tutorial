@@ -12,17 +12,18 @@ import random, sys, os
 
 # pymunk.pygame_util.positive_y_is_up = True
 
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
-WHITE = (255, 255, 255)
+BLACK = (0, 0, 0, 0)
+GRAY = (200, 200, 200, 0)
+LIGHTGRAY = (220, 220, 220, 0)
+WHITE = (255, 255, 255, 0)
 
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+RED = (255, 0, 0, 0)
+GREEN = (0, 255, 0, 0)
+BLUE = (0, 0, 255, 0)
 
-YELLOW = (255, 255, 0)
-CYAN = (0, 255, 255)
-MAGENTA = (255, 0, 255)
+YELLOW = (255, 255, 0, 0)
+CYAN = (0, 255, 255, 0)
+MAGENTA = (255, 0, 255, 0)
 
 space = None
 
@@ -33,26 +34,22 @@ class App:
     size = 640, 240
 
     def __init__(self):
-        """Initialize pygame and the application."""
+        """Initialize pygame and the app."""
         pygame.init()
         self.screen = pygame.display.set_mode(App.size)
         self.running = True
         self.stepping = True
 
         self.rect = Rect((0, 0), App.size)
-
-        # Pymunk physics simulation
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-        # self.draw_options.shape_outline_color = RED
-        # self.draw_options.shape_dynamic_color = YELLOW
-        
         self.dt = 1/50
+
         self.shortcuts = {
-            K_a: 'print(123)',
-            K_b: 'Rectangle(pos=get_mouse_pos(self.screen), color=GREEN)',
-            K_v: 'Rectangle(pos=get_mouse_pos(self.screen), color=BLUE)',
+            K_a: 'Arrow(get_mouse_pos(self.screen), color=BLACK)',
+            K_b: 'Rectangle(get_mouse_pos(self.screen), color=GREEN)',
+            K_v: 'Rectangle(get_mouse_pos(self.screen), color=BLUE)',
             
-            K_c: 'Circle(pos=get_mouse_pos(self.screen), color=RED)',
+            K_c: 'Circle(get_mouse_pos(self.screen), color=RED)',
             K_n: 'self.next_space()',
             
             K_q: 'self.running = False',
@@ -113,7 +110,7 @@ class App:
         pygame.quit()
 
     def do_shortcut(self, event):
-        """Find the key/mod combination in the dictionary and execute the cmd."""
+        """Find the key/mod combination and execute the cmd."""
         k = event.key
         m = event.mod
         cmd = ''
@@ -142,8 +139,7 @@ class App:
             print(body.mass)
 
     def capture(self):
-        """Save a screen capture to the directory of the 
-        calling class, under the class name in PNG format."""
+        """Save a screen capture to the directory of the calling class"""
         name = type(self).__name__
         module = sys.modules['__main__']
         path, name = os.path.split(module.__file__)
@@ -152,12 +148,8 @@ class App:
         pygame.image.save(self.screen, filename)
 
 class Space:
-    """Create an independant simulation space with
-    - background color
-    - caption
-    - text objects
-    """
-    def __init__(self, caption, color=WHITE, gravity=(0, -900)):
+    """Create an independant simulation space."""
+    def __init__(self, caption, color=LIGHTGRAY, gravity=(0, -900)):
         global space
 
         space = pymunk.Space()
@@ -172,6 +164,7 @@ class Space:
         pygame.display.set_caption(caption)
 
     def remove_all(self):
+        """Remove all objects from the current space."""
         for s in self.space.shapes:
             self.space.remove(s)
 
@@ -181,59 +174,53 @@ class Space:
         for c in self.space.constraints:
             self.space.remove(c)
 
-class Obj:
-    options = { 'pos': (0, 0),
-                'color': None,
-                'img': None,
-                }
 
 class Circle:
-    """Create a circle object in Pymunk."""
-    def __init__(self, pos, radius=10, color=None):
-        # self.mass = mass
-        self.pos = pos
-        self.radius = radius
-        # self.intertia = pymunk.moment_for_circle(mass, 0, radius, (0, 0))
-    
-        # calculate mass and inertia from shape density
-        body = pymunk.Body()
-        body.position = pos
-        shape = pymunk.Circle(body, radius)
-        shape.density = 1
-        shape.elasticity = 1
+    def __init__(self, p0, radius=10, color=None):
+        self.body = pymunk.Body()
+        self.body.position = p0
+        shape = pymunk.Circle(self.body, radius)
+        shape.density = 0.01
+        shape.elasticity = 0.5
         shape.friction = 0.5
-        App.current.space.add(body, shape)
-        self.body = body
-
-    def kill(self):
-        App.current.space.remove(self.body, self.shape)
-
-class Rectangle:
-    def __init__(self, pos, size=(20, 20), color=None):
-        body = pymunk.Body()
-        body.position = pos
-        shape = pymunk.Poly.create_box(body, size)
-        shape.density = 1
         if color != None:
             shape.color = color
+        App.current.space.add(self.body, shape)
 
-        App.current.space.add(body, shape)
-        self.body = body
-
-class Polygon:
-    def __init__(self, pos, vertices):
-        body = pymunk.Body()
-        body.position = pos
-        shape = pymunk.Poly(body, vertices)
+class Segment:
+    def __init__(self, p0, v, radius=10, color=None):
+        self.body = pymunk.Body()
+        self.body.position = p0
+        shape = pymunk.Segment(self.body, (0, 0), v, radius)
+        shape.density = 0.01
+        shape.elasticity = 0.5
         shape.friction = 0.5
-        shape.collision_type = 1
-        shape.density = 1
-        App.current.space.add(body, shape)
+        if color != None:
+            shape.color = color
+        App.current.space.add(self.body, shape)
 
-class Arrow(Polygon):
-    def __init__(self, pos):
+class Poly:
+    def __init__(self, p0, vertices, color=None):
+        self.body = pymunk.Body()
+        self.body.position = p0
+        self.shape = pymunk.Poly(self.body, vertices)
+        self.shape.density = 0.01
+        self.shape.elasticity = 0.5
+        self.shape.friction = 0.5
+        if color != None:
+            self.shape.color = color
+        App.current.space.add(self.body, self.shape)
+
+class Rectangle(Poly):
+    def __init__(self, p0, size=(20, 20), color=None):
+        w, h = Vec2d(size)/2
+        vertices = [(-w, -h), (w, -h), (w, h), (-w, h)]
+        super().__init__(p0, vertices, color)
+
+class Arrow(Poly):
+    def __init__(self, p0, color=None):
         vertices = [(-30, 0), (0, 3), (10, 0), (0, -3)]
-        super().__init__(pos, vertices)
+        super().__init__(p0, vertices, color)
 
 class Line:
     """Add a static line."""
@@ -243,7 +230,6 @@ class Line:
         seg.elasticity = 1
         seg.friction = 1
         App.current.space.add(seg)
-
 
 class Lever:
     """Add a static line."""
@@ -275,7 +261,7 @@ class Car:
     def __init__(self):
         c1 = Circle((100, 100), 30)
         c2 = Circle((300, 100), 30)
-        b = Rectangle(pos=(200, 150), size=(100, 60), color=GREEN)
+        b = Rectangle((200, 150), size=(100, 60), color=GREEN)
 
 
         j0 = pymunk.PinJoint(c1.body, b.body, (0,0), (-50, -30))
@@ -313,10 +299,34 @@ class Text:
 if __name__ == '__main__':
     app = App()
 
-    Space('Cercle', GRAY)
-    Line((10, 10), (500, 10))
+    p0 = Vec2d(200, 120)
+    v = Vec2d(100, 0)
 
-    Space('Lines', BLACK)
+    Space('Cercle', gravity=(0, 0))
+    Circle(p0)
+    Circle(p0+v, 20)
+    Circle(p0+2*v, 50, RED)
+
+    Space('Segment', gravity=(0, 0))
+    Segment(p0, v)
+    Segment(p0+(50, 50), 2*v, 5, RED)
+
+    Space('Poly', gravity=(0, 0))
+    triangle = [(-30, -30), (30, -30), (0, 30)]
+    Poly(p0, triangle)
+    square = [(-30, -30), (30, -30), (30, 30), (-30, 30)]
+    Poly(p0+v, square)
+
+    Space('Polygons in a box')
+    Box(app.rect)
+    triangle = [(-30, -30), (30, -30), (0, 30)]
+    p=Poly(p0, triangle)
+    p.shape.elasticity = 1
+    square = [(-30, -30), (30, -30), (30, 30), (-30, 30)]
+    p = Poly(p0+v, square)
+    p.shape.elasticity = 1
+
+    Space('Line')
     Line((0, 100), (500, 100))
     Line((200, 300), (600, 400))
     Lever((150, 200))
@@ -365,11 +375,9 @@ if __name__ == '__main__':
         pj = pymunk.PinJoint(App.current.space.static_body, body, (x, 80+offset_y), (0,0))
         App.current.space.add(pj)
 
-    Space('Rectanglees')
+    Space('Rectangles')
     Rectangle((100, 100), (40, 60))
     b = Rectangle((300, 200), (40, 60), color=YELLOW)
-    print(b.body.shapes)
-    # b.body.shapes.color = YELLOW
     Line((0, 0), (600, 0))
 
     Space('Car')
@@ -396,18 +404,18 @@ if __name__ == '__main__':
     Space('Slope - no friction', WHITE)
     Box(Rect(app.rect))
     s = pymunk.Segment(space.static_body, p0, p1, 5)
-    Circle(pos=(100, 200), radius=50)
+    Circle(p0=(100, 200), radius=50)
     space.add(s)
 
     Space('Slope -friction = 0.5', WHITE)
     Box(Rect(app.rect))
     s = pymunk.Segment(space.static_body, p0, p1, 5)
     s.friction = 0.5
-    Circle(pos=(100, 200), radius=50)
+    Circle(p0=(100, 200), radius=50)
     space.add(s)
 
     Space('Segment and Circle', GRAY)
-    Box(Rect(app.rect))
+    Box(app.rect)
     b = pymunk.Body(1, 1)
     b.position = (100, 100)
     s = pymunk.Segment(b, (-50, 0), (0, 0), 5)
