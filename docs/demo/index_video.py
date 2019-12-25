@@ -52,7 +52,7 @@ line_set = pymunk.autogeometry.PolylineSet()
 def segment_func(v0, v1):
     line_set.collect_segment(v0, v1)
 
-t0 = pygame.time.ticks()
+t0 = pygame.time.get_ticks()
 
 logo_img.lock()
 pymunk.autogeometry.march_soft(
@@ -63,7 +63,7 @@ pymunk.autogeometry.march_soft(
     sample_func)
 logo_img.unlock()
 
-t = pygame.time.ticks()
+t = pygame.time.get_ticks()
 print(t-t0)
 
 r = 10

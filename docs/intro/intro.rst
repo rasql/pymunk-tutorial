@@ -15,16 +15,27 @@ In order to make the programs simple and short, we will use short variable names
 - ``c`` stands for **Constraint**
 - ``s`` stands for **Shape**
 
-An important class is the ``Vec2d`` class of
+An important class is the ``Vec2d`` class which indicates either
+the absolute position of a point in space, or the direction 
+vector between two points. 
 
-- ``p`` for **position**
-- ``v`` for **vector**
+- ``p`` stands for **position**
+- ``v`` stands for **vector**
+
+We could define a vector as the difference between two points in space::
+
+    v = p1 - p0
 
 A final ``s`` serves as a plural marker.
 
 - ``bs`` is a list of **bodies**
 - ``ps`` is a list of **positions**
 - ``vs`` is a list of **vectors**
+
+We can use the plural marker in a loop structure such as::
+
+    for b in bs:
+        print(b)
 
 The static body is used frequently, so we give it the short name ``b0`` ::
 
@@ -48,7 +59,7 @@ Six properties describe the state of a body
 A bouncing ball
 ---------------
 
-We start this tutorial with simple bouncing ball simulation. 
+We start this tutorial with a simple bouncing ball simulation. 
 The first thing we need to do is to import the ``pymunk`` and the ``pygame`` module::
 
     import pymunk
@@ -70,20 +81,20 @@ We define ``space`` as a global variable and assign it a gravity vector::
     space = pymunk.Space()
     space.gravity = 0, -900
 
-To create a static ground for our object we create a ``Segment`` shape.
-In order to have the ball bouncing from it, we give it an elasticity of 1::
+To create a fixed ground for our object we create a ``Segment`` shape
+attached to the static body ``b0``.
+In order to make the ball bounce, we give it an elasticity of 1::
 
     b0 = space.static_body
     segment = pymunk.Segment(b0, (0, 0), (640, 0), 4)
     segment.elasticity = 1
 
-The we create the dynamic body, and give it a mass, moment and position::
+Next, we create a dynamic body and give it a mass, moment and position::
 
     body = pymunk.Body(mass=1, moment=10)
     body.position = 100, 200
 
-In Pymunk we have to attach a shape to a body. We create a ``Circle`` shape and 
-attach it to the body::
+Then we create a ``Circle`` shape and attach it to the body::
 
     circle = pymunk.Circle(body, radius=20)
     circle.elasticity = 0.95
@@ -104,7 +115,7 @@ The only event we are going to detect is the QUIT event::
 
 In the latter part of the event loop we draw the obejcts. 
 First we fill the screen with a gray background color.
-Then we draw the two objects (circle, segment), 
+Then we draw the two objects with the ``space.debug_draw()`` function, 
 call the display update function, 
 and finally step the simulation forward by 0.01 time units::
 
@@ -122,14 +133,14 @@ and finally step the simulation forward by 0.01 time units::
 Creating an App class
 ---------------------
 
-In order to simplfy the tutorial examples we will create an ``App`` class
-which will run the simulation. This class will
+To simplfy the tutorial examples we will create a reusable ``App`` class
+which will run the simulation. This class will:
 
 * initialize Pygame
-* create a ``screen```
-* create a ``space``
+* create a ``screen`` object
+* create a ``space`` object
 * set the draw option
-* check the events
+* run the event loop
 * draw the objects to the screen
 
 Here is the class definition with the constructor method::

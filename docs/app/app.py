@@ -76,38 +76,42 @@ class App:
                 elif event.type == KEYDOWN:
                     self.do_shortcut(event)
 
-                elif event.type == MOUSEBUTTONDOWN:
-                    self.stepping = False
-                    p = from_pygame(event.pos, self.screen)
-                    print(p)
-                    for shape in App.current.space.shapes:
-                        d, info = shape.point_query(p)
-                        if d < 0:
-                            print(shape)
-                            print(shape.__dict__)
-
-                elif event.type == MOUSEMOTION:
-                    if event.buttons[0] == 1:
-                        self.p1 = from_pygame(event.pos, self.screen)
-                    
-                elif event.type == MOUSEBUTTONUP:
-                    self.stepping = True
+                App.current.do_event(event)
 
             for s in App.current.space.shapes:
                 if s.body.position.y < -100:
                     App.current.space.remove(s)
 
+            self.draw()
+
+            if self.stepping:
+                App.current.space.step(self.dt)
+
+        pygame.quit()
+
+    def draw(self):
             self.screen.fill(App.current.color)
             
             for obj in App.current.objects:
                 obj.draw()
-            
+
             App.current.space.debug_draw(self.draw_options)
-            if self.stepping:
-                App.current.space.step(self.dt)
+            self.draw_cg()
+            App.current.draw()
+
+            rect = App.current.sel_rect
+            pygame.draw.rect(self.screen, GREEN, rect, 1)
             pygame.display.update()
 
-        pygame.quit()
+
+    def draw_cg(self):
+        """Draw the center of gravity."""
+        screen = pygame.display.get_surface()
+        for b in App.current.space.bodies:
+            cg = b.position + b.center_of_gravity
+            p = to_pygame(cg, screen)
+            pygame.draw.circle(screen, BLUE, p, 5, 1)
+
 
     def do_shortcut(self, event):
         """Find the key/mod combination and execute the cmd."""
@@ -134,6 +138,10 @@ class App:
         App.current = App.spaces[i]
         pygame.display.set_caption(App.current.caption)
 
+        for s in App.current.space.shapes:
+            print(s, s.bb)
+    
+
     def draw_positions(self):
         for body in App.current.space.bodies:
             print(body.mass)
@@ -157,10 +165,16 @@ class Space:
         self.space = space
         App.spaces.append(self)
         App.current = self
+        self.screen = pygame.display.get_surface()
 
         self.caption = caption
         self.color = color
         self.objects = []
+        self.sel_rect = Rect(0, 0, 0, 0)
+        self.selecting = False
+        self.moving = False
+        self.active_shape = None
+
         pygame.display.set_caption(caption)
 
     def remove_all(self):
@@ -174,6 +188,55 @@ class Space:
         for c in self.space.constraints:
             self.space.remove(c)
 
+    def do_event(self, event):
+        """Do object selection."""
+        if event.type == MOUSEBUTTONDOWN:
+            self.selecting = False
+            self.sel_rect.topleft = event.pos
+            self.sel_rect.size = 0, 0
+
+            p = from_pygame(event.pos, self.screen)
+            self.make_active_shape(p)
+            
+        elif event.type == MOUSEMOTION:
+            if self.active_shape != None:
+                b = self.active_shape.body
+                b.position = from_pygame(event.pos, self.screen)
+
+            if event.buttons[0] == 1:
+                self.selecting = True
+                self.sel_rect.width += event.rel[0]
+                self.sel_rect.height += event.rel[1]
+
+
+        elif event.type == MOUSEBUTTONUP:
+            self.selecting = False
+
+    def make_active_shape(self, p):
+        self.active_shape = None
+        for s in self.space.shapes:
+            dist, info = s.point_query(p)
+            if dist < 0:
+                self.active_shape = s
+
+    def draw(self):
+        self.draw_shapes_bb()
+        if self.active_shape != None:
+            s = self.active_shape
+            self.draw_bb(s.bb, BLUE, 3)
+
+
+    def draw_shapes_bb(self):
+        """Draw the bounding box of shapes."""
+        for s in self.space.shapes:
+            self.draw_bb(s.bb, RED, 1)
+
+    def draw_bb(self, bb, color, d):
+            x = bb.left
+            y = self.screen.get_rect().height - bb.top
+            w = bb.right - bb.left
+            h = bb.top - bb.bottom
+            pygame.draw.rect(self.screen, color, (x, y, w, h), d)  
 
 class Circle:
     def __init__(self, p0, radius=10, color=None):

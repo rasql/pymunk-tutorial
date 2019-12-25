@@ -32,18 +32,10 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 LIGHTGRAY = (220, 220, 220)
 
+objects = []
 
 class App:
-    scenes = []
-    scene = None
-
-    def __init__(self, size=(600, 400)):
-        self.size = size
-        pygame.init()
-        pygame.display.set_mode(size)
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, 18)
-        
+    def __init__(self):
         self.running = True
 
     def run(self):
@@ -56,33 +48,17 @@ class App:
                     if event.key in (K_q, K_ESCAPE):
                         self.running = False
 
-            App.scene.draw()
+            self.draw()
             clock.tick(fps)
             space.step(1/fps)
 
         pygame.quit()
 
-
-class Scene:
-    def __init__(self, caption, color=BLACK, gravity=(0, 900)):
-        self.space = pymunk.Space()
-        self.space.gravity = gravity
-        self.caption = caption
-        self.color = color
-        self.objects = []
-        self.screen = pygame.display.get_surface()
-
-        App.scenes.append(self)
-        App.scene = self
-
-    def do_event(self, event):
-        pass
-
     def draw(self):
-        self.screen.fill(self.color)
+        screen.fill(BLACK)
         space.debug_draw(draw_options)
 
-        for obj in self.objects:
+        for obj in objects:
             obj.draw()
 
         pygame.display.update()
@@ -93,7 +69,7 @@ class Text:
         self.rect = Rect(*pos, 0, 0)
         self.color = color
         self.set(text)
-        App.scene.objects.append(self)
+        objects.append(self)
 
     def set(self, text):
         self.text = text
@@ -132,11 +108,27 @@ class Segment:
             p = p + v
             space.add(shape)
 
+class Poly:
+    def __init__(self, pos, vs, img):
+        self.body = pymunk.Body()
+        self.body.position = pos
+        shape = pymunk.Poly(self.body, vs)
+        shape.density = 0.01
+        shape.friction = 0.5    
+        space.add(self.body, shape)
+        objects.append(self)
+        self.img = img
+
+    def draw(self):
+        pos = to_pygame(self.body.position, screen)
+        angle = math.degrees(self.body.angle) + 180
+        img = pygame.transform.rotate(self.img, angle)
+        rect = img.get_rect()
+        rect.center = pos
+        screen.blit(img, rect)
+        pygame.draw.circle(screen, YELLOW, pos, 5)
 
 if __name__ == '__main__':
-    app = App()
-    Scene('Demo example')
-
     Text(f'Version: {pymunk.version}', (50, 5))
     Text(f'Chipmunk version: {pymunk.chipmunk_version}', (50, 20))
     Text('Demo Lib', (50, 35))
@@ -171,4 +163,4 @@ if __name__ == '__main__':
     c = Circle((300, 200), 20)
     c.body.body_type = pymunk.Body.STATIC
 
-    app.run()
+    App().run()

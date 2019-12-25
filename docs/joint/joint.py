@@ -14,10 +14,6 @@ class PinJoint:
         joint = pymunk.constraint.PinJoint(a, b, anchor_a, anchor_b)
         space.add(joint)
 
-
-
-
-
 class PivotJoint:
     def __init__(self, a, b, anchor_a=(0, 0), anchor_b=(0, 0)):
         joint = pymunk.constraint.PinJoint(a, b, anchor_a, anchor_b)
@@ -55,9 +51,6 @@ class GearJoint:
     def __init__(self, a, b, phase, ratio):
         joint = pymunk.constraint.GearJoint(a, b, phase, ratio)
         space.add(joint)
-
-
-    
 
 def info(body):
     print(f'm={body.mass:.0f} moment={body.moment:.0f}')

@@ -15,6 +15,8 @@ Welcome to this Pymunk tutorial
    joint/joint
    auto/auto
    app/app
+   mouse/mouse
+   demo/demo
    bird/bird
 
 

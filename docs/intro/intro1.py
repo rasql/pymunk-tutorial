@@ -2,7 +2,7 @@ import pymunk
 import pymunk.pygame_util
 import pygame
 
-GRAY = (200, 200, 200)
+GRAY = (220, 220, 220)
 
 pygame.init()
 size = 640, 240

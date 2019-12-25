@@ -1,6 +1,6 @@
-from intro import pymunk, space, App
+from intro import *
 
-segment = pymunk.Segment(space.static_body, (20, 120), (400, 20), 1)
+segment = pymunk.Segment(b0, (0, 120), (400, 20), 4)
 segment.elasticity = 0.5
 segment.friction = 0.5
 
