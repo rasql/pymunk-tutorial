@@ -4,8 +4,10 @@ from pymunk.vec2d import Vec2d
 
 import pygame
 from pygame.locals import *
+
 import math
 import random
+from PIL import Image
 
 space = pymunk.Space()
 b0 = space.static_body
@@ -61,6 +63,8 @@ class App:
         self.pulling = False
         self.running = True
         self.gravity = False
+        self.images = []
+        self.image_nbr = 60
 
     def run(self):
         while self.running:
@@ -100,13 +104,15 @@ class App:
                     space.remove(s, s.body)
                     self.active_shape = None
 
-            elif event.key == K_g:
+            elif event.key == K_h:
                 self.gravity = not self.gravity
                 if self.gravity:
                     space.gravity = 0, -900
                 else:
                     space.gravity = 0, 0
 
+            elif event.key == K_g:
+                self.image_nbr = 60
 
         elif event.type == MOUSEBUTTONDOWN:
             p = from_pygame(event.pos, self.screen)
@@ -154,6 +160,17 @@ class App:
         for s in self.selected_shapes:
             self.draw_bb(s)
 
+        if self.image_nbr > 0:
+            strFormat = 'RGBA'
+            raw_str = pygame.image.tostring(self.screen, strFormat, False)
+            image = Image.frombytes(strFormat, self.screen.get_size(), raw_str)
+            self.images.append(image)
+            self.image_nbr -= 1
+            if self.image_nbr == 0:
+                self.images[0].save('pillow.gif',
+                    save_all=True, append_images=self.images[1:], optimize=False, duration=40, loop=0)
+                self.images = []
+                
         pygame.display.update()
 
     def draw_bb(self, shape):
@@ -167,6 +184,7 @@ class App:
 if __name__ == '__main__':
     Box()
 
+    space.gravity = 0, -900
     r = 25
     for i in range(9):
         x = random.randint(r, w-r)

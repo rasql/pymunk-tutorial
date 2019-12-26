@@ -190,7 +190,7 @@ if the **cmd** key is pressed::
     else:
         self.selected_shapes = [] 
 
-In order to draw a shape's bounding box (BB) we add the following method::
+In order to draw a shape's bounding box (BB) we add the following method.
 
 .. literalinclude:: mouse.py
    :pyobject: App.draw_bb
@@ -220,6 +220,18 @@ With gravity turned on, the circles fall to the ground.
 
 .. image:: mouse7.png
 
+Animated GIF
+------------
+
+Balls under the influence of gravity.
+
+.. image:: mouse8.gif
+
+Big and smalls balls.
+
+.. image:: mouse9.gif
+
+
 
 Complete source code
 --------------------
@@ -229,4 +241,3 @@ Here is the complete file.
 :download:`mouse.py<mouse.py>`
 
 .. literalinclude:: mouse.py
-
