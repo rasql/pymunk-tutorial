@@ -13,6 +13,7 @@ size = w, h = 700, 300
 
 GRAY = (220, 220, 220)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 
 class Segment:
@@ -42,38 +43,12 @@ class Box:
     def __init__(self, p0=(0, 0), p1=(w, h), d=4):
         x0, y0 = p0
         x1, y1 = p1
-        pts = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+        ps = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
         for i in range(4):
-            segment = pymunk.Segment(
-                space.static_body, pts[i], pts[(i+1) % 4], d)
+            segment = pymunk.Segment(b0, ps[i], ps[(i+1) % 4], d)
             segment.elasticity = 1
             segment.friction = 1
             space.add(segment)
-
-
-class Poly:
-    def __init__(self, pos, vertices):
-        self.body = pymunk.Body(1, 100)
-        self.body.position = pos
-
-        shape = pymunk.Poly(self.body, vertices)
-        shape.filter = pymunk.ShapeFilter(group=1)
-        shape.density = 0.01
-        shape.elasticity = 0.5
-        shape.color = (255, 0, 0, 0)
-        space.add(self.body, shape)
-
-
-class Rectangle:
-    def __init__(self, pos, size=(80, 50)):
-        self.body = pymunk.Body()
-        self.body.position = pos
-
-        shape = pymunk.Poly.create_box(self.body, size)
-        shape.density = 0.1
-        shape.elasticity = 1
-        shape.friction = 1
-        space.add(self.body, shape)
 
 
 class App:
@@ -82,14 +57,15 @@ class App:
         self.screen = pygame.display.set_mode(size)
         self.draw_options = DrawOptions(self.screen)
         self.active_shape = None
+        self.selected_shapes = []
         self.pulling = False
         self.running = True
+        self.gravity = False
 
     def run(self):
         while self.running:
             for event in pygame.event.get():
                 self.do_event(event)
-
             self.draw()
             space.step(0.01)
 
@@ -103,15 +79,34 @@ class App:
             if event.key in (K_q, K_ESCAPE):
                 self.running = False
 
-            if event.key == K_p:
+            elif event.key == K_p:
                 pygame.image.save(self.screen, 'mouse.png')
 
             keys = {K_LEFT: (-1, 0), K_RIGHT: (1, 0),
                     K_UP: (0, 1), K_DOWN: (0, -1)}
+            
             if event.key in keys:
                 v = Vec2d(keys[event.key]) * 20
                 if self.active_shape != None:
                     self.active_shape.body.position += v
+
+            elif event.key == K_c:
+                p = from_pygame(pygame.mouse.get_pos(), self.screen)
+                Circle(p, radius=20)
+            
+            elif event.key == K_BACKSPACE:
+                s = self.active_shape
+                if s != None:
+                    space.remove(s, s.body)
+                    self.active_shape = None
+
+            elif event.key == K_g:
+                self.gravity = not self.gravity
+                if self.gravity:
+                    space.gravity = 0, -900
+                else:
+                    space.gravity = 0, 0
+
 
         elif event.type == MOUSEBUTTONDOWN:
             p = from_pygame(event.pos, self.screen)
@@ -123,6 +118,13 @@ class App:
                     self.pulling = True
 
                     s.body.angle = (p - s.body.position).angle
+
+                    if pygame.key.get_mods() & KMOD_META:
+                        self.selected_shapes.append(s)
+                        print(self.selected_shapes)
+                    else:
+                        self.selected_shapes = [] 
+
 
         elif event.type == MOUSEMOTION:
             self.p = event.pos
@@ -149,7 +151,17 @@ class App:
                 pygame.draw.line(self.screen, RED, p, self.p, 3)
                 pygame.draw.circle(self.screen, RED, self.p, r, 3)
 
+        for s in self.selected_shapes:
+            self.draw_bb(s)
+
         pygame.display.update()
+
+    def draw_bb(self, shape):
+        pos = shape.bb.left, shape.bb.top
+        w = shape.bb.right - shape.bb.left
+        h = shape.bb.top - shape.bb.bottom
+        p = to_pygame(pos, self.screen)
+        pygame.draw.rect(self.screen, BLUE, (*p, w, h), 1)
 
 
 if __name__ == '__main__':
