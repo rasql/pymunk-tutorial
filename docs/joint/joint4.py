@@ -1,20 +1,20 @@
 # different rotation speeds
-from joint import b0, App, SimpleMotor, PivotJoint , Segment, Vec2d
+from joint import *
 
-p0 = 200, 120
+p = 100, 100
 v = 80, 0
-arm = Segment(p0, v)
-PivotJoint(b0, arm.body, p0)
+arm = Segment(p, v)
+PivotJoint(b0, arm.body, p)
 SimpleMotor(b0, arm.body, 1)
 
-p0 = 400, 120
-arm = Segment(p0, v)
-PivotJoint(b0, arm.body, p0)
+p = 200, 100
+arm = Segment(p, v)
+PivotJoint(b0, arm.body, p)
 SimpleMotor(b0, arm.body, 5)
 
-p0 = 600, 120
-arm = Segment(p0, v)
-PivotJoint(b0, arm.body, p0)
+p = 300, 100
+arm = Segment(p, v)
+PivotJoint(b0, arm.body, p)
 SimpleMotor(b0, arm.body, 10)
 
 App().run()

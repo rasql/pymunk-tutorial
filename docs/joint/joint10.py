@@ -1,8 +1,7 @@
 # gear joint
+from joint import *
 
-from joint import b0, App, Box, Circle, Segment, GearJoint, PivotJoint, SimpleMotor,  Vec2d
-
-p0 = Vec2d(200, 120)
+p0 = Vec2d(100, 100)
 r1, r2 = 40, 80
 v = Vec2d(r1+r2, 0)
 wheel1 = Circle(p0, r1)

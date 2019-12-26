@@ -1,13 +1,13 @@
 # double pendulum
-from joint import b0, App, Circle, Vec2d, PinJoint
+from joint import *
 
-p0 = Vec2d(300, 200)
+p = Vec2d(200, 190 )
 v = Vec2d(80, 0)
 
-c = Circle(p0+v)
-PinJoint(b0, c.body, p0)
+c = Circle(p+v)
+PinJoint(b0, c.body, p)
 
-c2 = Circle(p0+2*v)
+c2 = Circle(p+2*v)
 PinJoint(c.body, c2.body)
 
 App().run()

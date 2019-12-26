@@ -1,13 +1,13 @@
-# two pendulum of different length
-from joint import b0, App, Circle, Vec2d, PinJoint
+# two pendulums of different length
+from joint import *
 
-p0 = Vec2d(300, 200)
+p = Vec2d(200, 190)
 v = Vec2d(80, 0)
 
-c = Circle(p0+v)
-PinJoint(b0, c.body, p0)
+c = Circle(p+v)
+PinJoint(b0, c.body, p)
 
-c = Circle(p0+2*v)
-PinJoint(b0, c.body, p0)
+c2 = Circle(p+2*v)
+PinJoint(b0, c2.body, p)
 
 App().run()
