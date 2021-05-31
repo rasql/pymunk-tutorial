@@ -11,6 +11,7 @@ class App:
     size = 700, 240
     def __init__(self):
         pygame.init()
+        pymunk.pygame_util.positive_y_is_up = True
         self.screen = pygame.display.set_mode(self.size)
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
         self.running = True
