@@ -292,7 +292,7 @@ The ``PinJoint`` methode takes 2 bodies and their local positions as argument.
 We place the static body ``b0``'s anchor at (200, 200) and leave the dynamic ``body`` at its default anchor 
 of (0, 0). This creates a pin between static point (200, 200) and dynamic point (100, 100)::
 
-    joint = pymunk.constraint.PinJoint(b0, body, (200, 200))
+    joint = pymunk.constraints.PinJoint(b0, body, (200, 200))
 
 Due to gravity, the pendulum starts swinging.
 
