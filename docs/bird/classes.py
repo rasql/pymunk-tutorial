@@ -14,7 +14,7 @@ font = pygame.font.Font(None, 48)
 WHITE = (255, 255, 255)
 
 space = pymunk.Space()
-space.gravity = 0, -900
+space.gravity = 0, 900
 
 draw_options = pymunk.pygame_util.DrawOptions(screen)
 
@@ -33,7 +33,6 @@ def post_solve_bird_wood(arbiter, space, _):
     bird, wood = arbiter.shapes
     
     if arbiter.total_impulse.length > 500:
-        print(arbiter.total_impulse.length)
         space.remove(wood, wood.body)
         for obj in Game.objects:
             if obj.body == wood.body:
@@ -122,7 +121,7 @@ class Game:
         screen.blit(self.score_img, (20, 20))
     
     def set_ground(self):
-        shape = pymunk.Segment(space.static_body, (0, 10), (1200, 10), 4)
+        shape = pymunk.Segment(space.static_body, (0, 590), (1200, 590), 4)
         shape.friction = 1
         shape.collision_type = 3
         space.add(shape)
@@ -158,7 +157,7 @@ class Game:
         """Get two sling points to launch the bird."""
         p0 = from_pygame(p0, screen)
         p1 = from_pygame(p1, screen)
-        v = (Vec2d(p0) - Vec2d(p1)) * 10
+        v = (Vec2d(*p0) - Vec2d(*p1)) * 10
         b = Bird(pos=p1)
         b.body.apply_impulse_at_local_point(v)
             
@@ -169,31 +168,31 @@ class Game:
         self.set_ground()
 
         if level == 1:
-            Column((1000, 100))
-            Column((1060, 100))
-            Beam((1030, 145))
-            Column((1000, 200))
-            Column((1060, 200))
-            Beam((1030, 245))
-            Pig((1140, 60))
+            Column((1000, 500))
+            Column((1060, 500))
+            Beam((1030, 455))
+            Column((1000, 400))
+            Column((1060, 400))
+            Beam((1030, 355))
+            Pig((1140, 540))
 
         elif level == 2:
             for i in range(2):
-                Column((1000, 60 + i*100))
-                Column((1060, 60 + i*100))
-                Beam((1030, 105 + i*100))
-            Pig((1000, 60))
+                Column((995, 540 - i*100))
+                Column((1060, 540 - i*100))
+                Beam((1030, 495 - i*100))
+            Pig((1020, 540))
 
         elif level == 3:
             for x in range(500, 800, 30):
-                Column((x, 60))
-            Pig((850, 60))
+                Column((x, 540))
+            Pig((850, 540))
 
         elif level == 4:
-            Column((500, 60))
+            Column((500, 540))
             for x in range(500, 700, 85):
-                Column((x+83, 60))
-                Beam((x+40, 105))
-                Pig((x+40, 50))
+                Column((x+83, 540))
+                Beam((x+40, 495))
+                Pig((x+40, 550))
 
-            Pig((850, 100))
+            Pig((850, 500))
