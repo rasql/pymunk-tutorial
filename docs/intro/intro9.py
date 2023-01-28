@@ -9,7 +9,7 @@ for i in range(5):
         body.position = 50, 200
     shape = pymunk.Circle(body, radius=20)
     shape.elasticity = 0.999
-    joint = pymunk.constraint.PinJoint(b0, body, (200+i*40, 200))
+    joint = pymunk.constraints.PinJoint(b0, body, (200+i*40, 200))
     space.add(body, shape, joint)
 
 App().run()
