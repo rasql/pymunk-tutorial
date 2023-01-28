@@ -14,8 +14,8 @@ c2 = pymunk.Circle(b2, radius=20)
 c2.elasticity = 0.999
 space.add(b2, c2)
 
-j1 = pymunk.constraint.PinJoint(b0, b1, (200, 200))
-j2 = pymunk.constraint.PinJoint(b0, b2, (240, 200))
+j1 = pymunk.constraints.PinJoint(b0, b1, (200, 200))
+j2 = pymunk.constraints.PinJoint(b0, b2, (240, 200))
 space.add(j1, j2)
 
 App().run()
