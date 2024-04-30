@@ -6,6 +6,9 @@ from pymunk.pygame_util import *
 from pymunk import Vec2d
 import math
 
+# 30.4.2024 v1 : set this variable
+pymunk.pygame_util.positive_y_is_up = True
+
 pygame.init()
 pygame.display.set_mode((200, 100))
 screen = pygame.display.get_surface()
@@ -158,7 +161,10 @@ class Game:
         """Get two sling points to launch the bird."""
         p0 = from_pygame(p0, screen)
         p1 = from_pygame(p1, screen)
-        v = (Vec2d(p0) - Vec2d(p1)) * 10
+        
+        # 30.4.2024 v1 : add * to points p0, p1
+        v = (Vec2d(*p0) - Vec2d(*p1)) * 10
+        
         b = Bird(pos=p1)
         b.body.apply_impulse_at_local_point(v)
             
